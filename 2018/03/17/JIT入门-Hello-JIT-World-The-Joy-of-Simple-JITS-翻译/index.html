@@ -1,0 +1,726 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="JIT," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="简介一篇关于JIT入门的译文，原文传送: http://blog.reverberate.org/2012/12/hello-jit-world-joy-of-simple-jits.html Hello, JIT World: The Joy of Simple JITS本文演示了一个简单的JIT编译器能够完成什么样的有趣的事情。JIT，听起来就像是程序中最深层的魔法，似乎只有团队中最核心的成员">
+<meta name="keywords" content="JIT">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JIT入门: Hello, JIT World: The Joy of Simple JITS(翻译)">
+<meta property="og:url" content="http://yoursite.com/2018/03/17/JIT入门-Hello-JIT-World-The-Joy-of-Simple-JITS-翻译/index.html">
+<meta property="og:site_name" content="没脚的雀">
+<meta property="og:description" content="简介一篇关于JIT入门的译文，原文传送: http://blog.reverberate.org/2012/12/hello-jit-world-joy-of-simple-jits.html Hello, JIT World: The Joy of Simple JITS本文演示了一个简单的JIT编译器能够完成什么样的有趣的事情。JIT，听起来就像是程序中最深层的魔法，似乎只有团队中最核心的成员">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-03-30T15:02:25.519Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JIT入门: Hello, JIT World: The Joy of Simple JITS(翻译)">
+<meta name="twitter:description" content="简介一篇关于JIT入门的译文，原文传送: http://blog.reverberate.org/2012/12/hello-jit-world-joy-of-simple-jits.html Hello, JIT World: The Joy of Simple JITS本文演示了一个简单的JIT编译器能够完成什么样的有趣的事情。JIT，听起来就像是程序中最深层的魔法，似乎只有团队中最核心的成员">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/17/JIT入门-Hello-JIT-World-The-Joy-of-Simple-JITS-翻译/"/>
+
+
+
+
+
+  <title> JIT入门: Hello, JIT World: The Joy of Simple JITS(翻译) | 没脚的雀 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6959325046ea5045c25cae0a86b93189";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">没脚的雀</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">我有十个手指头<br>愿她们在键盘上舞蹈<br>奏出最美的乐章</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/17/JIT入门-Hello-JIT-World-The-Joy-of-Simple-JITS-翻译/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="WinChua">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/hmm_hat.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="没脚的雀">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="没脚的雀" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                JIT入门: Hello, JIT World: The Joy of Simple JITS(翻译)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-03-17T13:12:16+08:00">
+                2018-03-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>一篇关于JIT入门的译文，原文传送: <a href="http://blog.reverberate.org/2012/12/hello-jit-world-joy-of-simple-jits.html" target="_blank" rel="noopener">http://blog.reverberate.org/2012/12/hello-jit-world-joy-of-simple-jits.html</a></p>
+<h2 id="Hello-JIT-World-The-Joy-of-Simple-JITS"><a href="#Hello-JIT-World-The-Joy-of-Simple-JITS" class="headerlink" title="Hello, JIT World: The Joy of Simple JITS"></a>Hello, JIT World: The Joy of Simple JITS</h2><p>本文演示了一个简单的JIT编译器能够完成什么样的有趣的事情。JIT，听起来就像是程序中最深层的魔法，似乎只有团队中最核心的成员才会有接触它的想法。它让人联想起类似于 JVM, .NET 这些需要成千上万行代码的大型运行时系统。 也许你从未见过在 JIT 领域中的  “Hello World”  程序，这正是这篇文章尝试改变的。</p>
+<p>如果你仔细想想，一个 JIT 其实和一个普通的 printf 函数没什么太大的不同，它们的区别在于： printf 输出了类似于 “Hello, HMM” 这样的信息，而一个 JIT 输出的是一段机器码。 当然了，类似于 JVM 的 JITs 确实是一些复杂的事务，但那是因为它们的任务是在一些复杂的平台上完成一些代码优化任务。 如果我们将事情简化，我们的程序也能够变得十分简单。</p>
+<p>完成一个简单的 JIT 最为困难的部分在于，如何输出机器码使得你的目标CPU能够执行这些机器码。举个例子来说， 在x86-64平台中，push rbp 汇编指令被编码为 0x55. 完成这些编码工作需要读许多的CPU手册， 因此我们将跳过这部分的工作，相反使用另外一个非常 nice 的库 <a href="http://luajit.org/dynasm.html" target="_blank" rel="noopener">DynASM</a> 来处理这些指令编码。DynASM 为你提供了一些巧妙的方式来处理由C编写的JIT 生成的汇编代码。这个库支持了许多的CPU架构(x86, x86-64, PowerPC, MIPS 以及 ARM) 。 同时， DynASM非常的校，完整的运行时包含在一个500-line的头文件中。</p>
+<p>在这里，我先阐明一个术语。 我把任何能够在运行时执行生成代码的程序都称为 JIT. 另外一些人可能将 “JIT” 用在更特别的地方。它们更愿意用 JIT 来指代一些混合了解释器和编译器来生成机器码的程序。这些作者会将在运行时生成机器码的技术成为动态编译。 但 JIT 是一个更加普遍更具有标志性的术语，并且常常会被用在与  JIT 的定义截然相反的某些途径上。</p>
+<a id="more"></a>
+<h2 id="Hello-JIT-World"><a href="#Hello-JIT-World" class="headerlink" title="Hello, JIT World!"></a>Hello, JIT World!</h2><p>在跳进更大的坑之前，先来看看简单的JIT。 这篇文章的代码都在这个 Github 仓库中 <a href="https://github.com/haberman/jitdemo" target="_blank" rel="noopener">jitdemo</a> . 这些代码只能运行在 Unix 平台上，以及 x86-64 CPU 架构上。 </p>
+<p>对于第一个例子，我们甚至不会使用 DynASM ，这个程序文件是: jit1.c</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/mman.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span> </span>&#123;</span><br><span class="line">  <span class="comment">// Machine code for:</span></span><br><span class="line">  <span class="comment">//   mov eax, 0</span></span><br><span class="line">  <span class="comment">//   ret</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">char</span> code[] = &#123;<span class="number">0xb8</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0xc3</span>&#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (argc &lt; <span class="number">2</span>) &#123;</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Usage: jit1 &lt;integer&gt;\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Overwrite immediate value "0" in the instruction</span></span><br><span class="line">  <span class="comment">// with the user's value.  This will make our code:</span></span><br><span class="line">  <span class="comment">//   mov eax, &lt;user's value&gt;</span></span><br><span class="line">  <span class="comment">//   ret</span></span><br><span class="line">  <span class="keyword">int</span> num = atoi(argv[<span class="number">1</span>]);</span><br><span class="line">  <span class="built_in">memcpy</span>(&amp;code[<span class="number">1</span>], &amp;num, <span class="number">4</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Allocate writable/executable memory.</span></span><br><span class="line">  <span class="comment">// Note: real programs should not map memory both writable</span></span><br><span class="line">  <span class="comment">// and executable because it is a security risk.</span></span><br><span class="line">  <span class="keyword">void</span> *mem = mmap(<span class="literal">NULL</span>, <span class="keyword">sizeof</span>(code), PROT_WRITE | PROT_EXEC,</span><br><span class="line">                   MAP_ANON | MAP_PRIVATE, <span class="number">-1</span>, <span class="number">0</span>);</span><br><span class="line">  <span class="built_in">memcpy</span>(mem, code, <span class="keyword">sizeof</span>(code));</span><br><span class="line"></span><br><span class="line">  <span class="comment">// The function will return the user's value.</span></span><br><span class="line">  <span class="keyword">int</span> (*func)() = mem;</span><br><span class="line">  <span class="keyword">return</span> func();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>似乎很难相信代码中第33行， 但是这就是一个 合法正统的 JIT. 这个程序动态生成了返回在运行时指定的整数的函数，并返回该函数的调用值。你可以这样验证它:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ./jit1 42 ; <span class="built_in">echo</span> $?</span></span><br><span class="line">42</span><br></pre></td></tr></table></figure>
+<p>你应该注意到了，我是用了mmap而非常用的从堆中获取动态内存的malloc方法。这是因为，我们需要一段能够被执行的内存，以便于我们在跳到该地址执行该生成的代码时，不会造成程序的冲突。在大多数系统中，堆栈的内存不具有可执行的属性。通常来说，我们需要避免对一块内存同时设置 可写 以及 可执行的属性(writable &amp; excutable).  在上述的代码中，我没有遵循这个规则，但这是为了是我们的演示代码更加简单。</p>
+<p>同样的，我没有在程序中释放动态申请的内存。不过后面我们将会补上。mmap() 函数 有一个 对应的用来释放内存的 munmap()。</p>
+<p>你也许会好奇，为什么不能够通过改变从malloc中申请的内存的属性，使它具有可执行的属性来执行我们的代码？通过代码中的方式来申请可执行的内存看起来十分麻烦。事实上，能够用来改变你已经拥有的内存的属性的函数，叫做 mprotect(); 但这个函数只对 page boundaries 有效； malloc() 返回的内存来自一个page的中间的内存，你并不能够完整地拥有整个page。 如果你改变了整个page的属性，将会影响了另外一些使用同一个page的程序；</p>
+<h2 id="Hello-DynASM-World"><a href="#Hello-DynASM-World" class="headerlink" title="Hello, DynASM World!"></a>Hello, DynASM World!</h2><p>DynASM 作为 LuaJIT 的一部分，但完全独立于 LuaJIT， 能够独立地使用。它包含了两个部分： 一个将 C\assembly 混合的文件(.dasc) 转换成 C 文件的预处理器。以及一个 tiny 运行时用来将必要的 C 代码链接进程序中。</p>
+<p>这个设计非常nice，因为像 解析 汇编语言以及生成机器码的功能能够使用 Lua 这种高级语言来编写。</p>
+<p>我们第一个使用 DynASM 的例子，将会保持和第一个例子相同的功能，以便于我们能够通过对比两个程序来理解 DynASM 的功能；</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// DynASM directives.</span></span><br><span class="line">|.arch x64</span><br><span class="line">|.actionlist actions</span><br><span class="line"></span><br><span class="line"><span class="comment">// This define affects "|" DynASM lines.  "Dst" must</span></span><br><span class="line"><span class="comment">// resolve to a dasm_State** that points to a dasm_State*.</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> Dst &amp;state</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (argc &lt; <span class="number">2</span>) &#123;</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Usage: jit1 &lt;integer&gt;\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">int</span> num = atoi(argv[<span class="number">1</span>]);</span><br><span class="line">  dasm_State *state;</span><br><span class="line">  initjit(&amp;state, actions);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Generate the code.  Each line appends to a buffer in</span></span><br><span class="line">  <span class="comment">// "state", but the code in this buffer is not fully linked</span></span><br><span class="line">  <span class="comment">// yet because labels can be referenced before they are</span></span><br><span class="line">  <span class="comment">// defined.</span></span><br><span class="line">  <span class="comment">//</span></span><br><span class="line">  <span class="comment">// The run-time value of C variable "num" is substituted</span></span><br><span class="line">  <span class="comment">// into the immediate value of the instruction.</span></span><br><span class="line">  |  mov eax, num</span><br><span class="line">  |  ret</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Link the code and write it to executable memory.</span></span><br><span class="line">  <span class="keyword">int</span> (*fptr)() = jitcode(&amp;state);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Call the JIT-ted function.</span></span><br><span class="line">  <span class="keyword">int</span> ret = fptr();</span><br><span class="line">  assert(num == ret);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Free the machine code.</span></span><br><span class="line">  free_jitcode(fptr);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这不是一个完成的程序； 另外一个用来初始化 DynASM 以及 分配和释放可执行内存的辅助函数定义在 dynasm-driver.c 中。 我们会在所有的例子中使用相同的辅助代码，所以在这里我省略它们了；</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>大佬给口饭吃咧</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat-reward.jpg" alt="WinChua WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/images/alipay-reward.jpg" alt="WinChua Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/JIT/" rel="tag"># JIT</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/02/26/Beta分布/" rel="next" title="Beta分布">
+                <i class="fa fa-chevron-left"></i> Beta分布
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/10/听说你熟练掌握-Python-之-import/" rel="prev" title="听说你熟练掌握 Python 之 import">
+                听说你熟练掌握 Python 之 import <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+            <div id="uyan_frame"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/hmm_hat.jpg"
+               alt="WinChua" />
+          <p class="site-author-name" itemprop="name">WinChua</p>
+          <p class="site-description motion-element" itemprop="description">我头像上的圣诞帽<br>是我最喜欢的女孩子亲手给我画的</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/WinChua" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hello-JIT-World-The-Joy-of-Simple-JITS"><span class="nav-number">2.</span> <span class="nav-text">Hello, JIT World: The Joy of Simple JITS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hello-JIT-World"><span class="nav-number">3.</span> <span class="nav-text">Hello, JIT World!</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hello-DynASM-World"><span class="nav-number">4.</span> <span class="nav-text">Hello, DynASM World!</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WinChua</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+    
+      
+    
+
+   
+        <!-- UY BEGIN -->
+        <div id="uyan_frame"></div>
+        <script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=2140384"></script>
+        <!-- UY END -->
+    
+  
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

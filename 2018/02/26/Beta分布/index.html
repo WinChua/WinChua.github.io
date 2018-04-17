@@ -1,0 +1,714 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="引言我是一枚硬币又是我——那一枚被很多人玩坏了的硬币。大家呢，总是很喜欢把我抛来抛去。忘了多少年前， 一个叫做伯努利的人，把我往天上抛了$N$次， 还幸灾乐祸的统计了我脸着地的次数，记作$X$。然后说我脸着地的次数是一个服从二项分布的随机变量， 记作  $X\sim B(N, p)$ , 其中 $p$ 是我每一次脸着地的概率。这个二项分布呢，是一个离散型的概率分布， 那货给出了在$N$ 起飞中，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Beta分布">
+<meta property="og:url" content="http://yoursite.com/2018/02/26/Beta分布/index.html">
+<meta property="og:site_name" content="没脚的雀">
+<meta property="og:description" content="引言我是一枚硬币又是我——那一枚被很多人玩坏了的硬币。大家呢，总是很喜欢把我抛来抛去。忘了多少年前， 一个叫做伯努利的人，把我往天上抛了$N$次， 还幸灾乐祸的统计了我脸着地的次数，记作$X$。然后说我脸着地的次数是一个服从二项分布的随机变量， 记作  $X\sim B(N, p)$ , 其中 $p$ 是我每一次脸着地的概率。这个二项分布呢，是一个离散型的概率分布， 那货给出了在$N$ 起飞中，">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-02-26T14:01:31.958Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Beta分布">
+<meta name="twitter:description" content="引言我是一枚硬币又是我——那一枚被很多人玩坏了的硬币。大家呢，总是很喜欢把我抛来抛去。忘了多少年前， 一个叫做伯努利的人，把我往天上抛了$N$次， 还幸灾乐祸的统计了我脸着地的次数，记作$X$。然后说我脸着地的次数是一个服从二项分布的随机变量， 记作  $X\sim B(N, p)$ , 其中 $p$ 是我每一次脸着地的概率。这个二项分布呢，是一个离散型的概率分布， 那货给出了在$N$ 起飞中，">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/02/26/Beta分布/"/>
+
+
+
+
+
+  <title> Beta分布 | 没脚的雀 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6959325046ea5045c25cae0a86b93189";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">没脚的雀</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">我有十个手指头<br>愿她们在键盘上舞蹈<br>奏出最美的乐章</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/26/Beta分布/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="WinChua">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/hmm_hat.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="没脚的雀">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="没脚的雀" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Beta分布
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-02-26T21:49:51+08:00">
+                2018-02-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><h3 id="我是一枚硬币"><a href="#我是一枚硬币" class="headerlink" title="我是一枚硬币"></a>我是一枚硬币</h3><p>又是我——那一枚被很多人玩坏了的硬币。大家呢，总是很喜欢把我抛来抛去。忘了多少年前， 一个叫做伯努利的人，把我往天上抛了$N$次， 还幸灾乐祸的统计了我脸着地的次数，记作$X$。然后说我脸着地的次数是一个服从二项分布的随机变量， 记作  $X\sim B(N, p)$ , 其中 $p$ 是我每一次脸着地的概率。这个二项分布呢，是一个离散型的概率分布， 那货给出了在$N$ 起飞中， 我脸着地次数的概率如下:<br>$$<br>P(X = x) = C_N^xp^x(1-p)^{N-x}<br>$$<br>那么，在知道我每一次脸着地的概率的情况下， 大家就能够算出在$N$ 次起飞中，我脸着地次数的概率； 但是身为一枚骄傲的硬币，怎么可以让人类轻而易举的就知道我每一次脸着地的概率！！！</p>
+<a id="more"></a>
+<h3 id="我的爸爸——贝叶斯"><a href="#我的爸爸——贝叶斯" class="headerlink" title="我的爸爸——贝叶斯"></a>我的爸爸——贝叶斯</h3><p>可是呢，人类也是同样的骄傲，我不告诉你们，你们偏要知道我的脸着地的概率。那怎么办呢？这时，有个叫做贝叶斯的年轻人站了出来，说了句:”我有个想法，不知当讲不当讲”， 然后就巴拉巴拉的说了起来:”虽然我们不知道$p$的值具体是多少， 但能够确定的是$p$这个值是一个连续值，而且属于区间[0,1]。姑且把这个信息称为先验知识。除此之外，我们一无所知。那么，不妨假设这个概率p是一个随机变量， 服从[0,1]的均匀分布，称为先验分布。那现在我们再把它抛N1次，通过统计正面朝下的次数来计算p取各个值得概率分布，称为后验分布。” 无耻的人类啊，脸着地，咱就说脸着地，说什么正面朝下。。。真是的。</p>
+<h3 id="我的儿子——beta分布"><a href="#我的儿子——beta分布" class="headerlink" title="我的儿子——beta分布"></a>我的儿子——beta分布</h3><p>就这样，我又被抛了N1次，一共x1次脸朝地。这时候， 贝叶斯又说： “大家看，这次实验的结果呢，正面朝下的次数是x1次。按照先前介绍的，有如下下几个假设</p>
+<p>$$<br>X \sim B(N_1, p)\<br>p \sim Uniform(0, 1) \<br>$$</p>
+<p>假设$p=\lambda$ ，那么又x1次正面朝下的概率为：</p>
+<p>$$<br>P(X = x_1 | p = \lambda) = C_{N_1}^{x_1} \lambda ^{x_1}(1-\lambda)^{N_1 - x_1}<br>$$</p>
+<p>按照我以前提出来的贝叶斯公式，有：</p>
+<p>$$<br>P(p = \lambda | X = x_1) = \frac {P(X=x_1|p=\lambda) \cdot P(p=\lambda)} {\int_0^1P(X=x_1| p=\gamma)\cdot P(p=\gamma)d\gamma}<br>$$</p>
+<p>$$<br>P(p=\lambda|X=x_1) = \frac{C_{N_1}^{x_1} \lambda ^{x_1}(1-\lambda)^{N_1 - x_1} \cdot 1}{\int_0^1 C_{N_1}^{x_1} \gamma ^{x_1}(1-\gamma)^{N_1 - x_1} \cdot 1 d\gamma} \<br>=  \frac{ \lambda ^{x_1}(1-\lambda)^{N_1 - x_1} }{\int_0^1\gamma ^{x_1}(1-\gamma)^{N_1 - x_1}  d\gamma} \<br>= \frac {\lambda ^{x_1}(1-\lambda)^{N_1 - x_1}} {B(x_1 + 1, N_1 - x_1 + 1)} \<br>其中， B(m, n) = \int_0^1t^{m-1}(1-t)^{n-1}dt , 称为Beta函数<br>$$</p>
+<p>最后的公式表达的是在已知N1次抛硬币实验中，正面朝下次数为x1次的条件下， 硬币每一次正面朝下服从的概率分布。那么把这个分布称为Beta分布， 它有两个参数一个m， 表示事件发生的次数；一个是n，表示事件不发生的次数。在这里，Beta函数的作用是使得Beta分布的这个表达式在[0,1]的积分值最终为1，也就是归一化的作用(normalization)。以后，大家在计算类似概率的时候，就可以直接按照这个概率公式计算， 不用再抛硬币了。”<br>$$<br>随机变量服从Beta分布，记为 p \sim Beta(m, n) , 则 \<br>P(p= \lambda) = \frac {\lambda^{m-1}(1 - \lambda)^{n - 1}}{B(m,n )} , \<br>其中， B(m,n) = \int_0^1t^{m-1}(1-t)^{n-1}dt<br>$$<br>敢情这贝叶斯还挺好人， 以后我终于可以不用被抛来抛去的了。</p>
+<h2 id="二项分布的关系"><a href="#二项分布的关系" class="headerlink" title="二项分布的关系"></a>二项分布的关系</h2><h3 id="均匀分布也是一个Beta分布"><a href="#均匀分布也是一个Beta分布" class="headerlink" title="均匀分布也是一个Beta分布"></a>均匀分布也是一个Beta分布</h3><p>当Beta分布的两个参数都是1的时候， 其概率密度函数为：<br>$$<br>p(X = x)   = 1, x \in [0,1]<br>$$<br>就是一个[0,1]区间的均匀分布。</p>
+<h3 id="共轭分布-Conjugate-distribution"><a href="#共轭分布-Conjugate-distribution" class="headerlink" title="共轭分布(Conjugate distribution)"></a>共轭分布(Conjugate distribution)</h3><p>在贝叶斯理论中，如果先验分布于后验分布具有相同的函数形式，或者说同属于一个分布族(仅分布的参数不一致)。而先验分布称为似然函数$P(X=x_1|p=\lambda)$ 的共轭先验分布。在上面的抛硬币的例子中，Beta分布族就是一个共轭分布族(conjugate distributions), 分布族中任意一个固定参数的具体分布都是 二项分布的一个共轭先验分布， 具体的如下：</p>
+<p>$$<br>假设硬币正面朝下的概率p\sim Beta(m,n) , 在N次抛硬币实验中有 \<br>P(p=\lambda|X = x) = \frac {P(X=x|p=\lambda)\cdot P(p=\lambda)}{\int_0^1P(X=x|p=\gamma)\cdot P(p=\gamma)d\gamma} \<br>= \frac {C_N^x\lambda^x(1-\lambda)^{N-x} \cdot \frac {\lambda^{(m-1)} \cdot (1-\lambda)^{n-1}}{B(m,n)}}{\int_0^1C_N^x\gamma^x(1-\gamma)^{N-x} \cdot \frac {\gamma^{(m-1)} \cdot (1-\gamma)^{n-1}}{B(m,n)}d\gamma} \<br>= \frac {\lambda^{(x+m-1)}(1-\lambda)^{N-x+n-1}} {B(x+m, N-x+n)} \sim Beta(x+m, N-x+n)<br>$$</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>大佬给口饭吃咧</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat-reward.jpg" alt="WinChua WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/images/alipay-reward.jpg" alt="WinChua Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/07/28/对不起-你属于前37/" rel="next" title="对不起,你属于前37%">
+                <i class="fa fa-chevron-left"></i> 对不起,你属于前37%
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/17/JIT入门-Hello-JIT-World-The-Joy-of-Simple-JITS-翻译/" rel="prev" title="JIT入门: Hello, JIT World: The Joy of Simple JITS(翻译)">
+                JIT入门: Hello, JIT World: The Joy of Simple JITS(翻译) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+            <div id="uyan_frame"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/hmm_hat.jpg"
+               alt="WinChua" />
+          <p class="site-author-name" itemprop="name">WinChua</p>
+          <p class="site-description motion-element" itemprop="description">我头像上的圣诞帽<br>是我最喜欢的女孩子亲手给我画的</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/WinChua" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#我是一枚硬币"><span class="nav-number">1.1.</span> <span class="nav-text">我是一枚硬币</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#我的爸爸——贝叶斯"><span class="nav-number">1.2.</span> <span class="nav-text">我的爸爸——贝叶斯</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#我的儿子——beta分布"><span class="nav-number">1.3.</span> <span class="nav-text">我的儿子——beta分布</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二项分布的关系"><span class="nav-number">2.</span> <span class="nav-text">二项分布的关系</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#均匀分布也是一个Beta分布"><span class="nav-number">2.1.</span> <span class="nav-text">均匀分布也是一个Beta分布</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#共轭分布-Conjugate-distribution"><span class="nav-number">2.2.</span> <span class="nav-text">共轭分布(Conjugate distribution)</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WinChua</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+    
+      
+    
+
+   
+        <!-- UY BEGIN -->
+        <div id="uyan_frame"></div>
+        <script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=2140384"></script>
+        <!-- UY END -->
+    
+  
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

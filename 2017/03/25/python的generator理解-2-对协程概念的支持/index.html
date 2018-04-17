@@ -1,0 +1,737 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="python中的生成器主要经历三个发展阶段：  作为实现迭代器协议的一种方式而出现(yield语句) 增添方法，使生成器能够支持协程(增加close,send,throw方法，调整yield语句为yield表达式) 为了重构方便增加了yield from 语法  在这篇博文中，主要介绍用于第二点">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python的generator理解(2)--对协程概念的支持">
+<meta property="og:url" content="http://yoursite.com/2017/03/25/python的generator理解-2-对协程概念的支持/index.html">
+<meta property="og:site_name" content="没脚的雀">
+<meta property="og:description" content="python中的生成器主要经历三个发展阶段：  作为实现迭代器协议的一种方式而出现(yield语句) 增添方法，使生成器能够支持协程(增加close,send,throw方法，调整yield语句为yield表达式) 为了重构方便增加了yield from 语法  在这篇博文中，主要介绍用于第二点">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-03-25T14:24:29.661Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="python的generator理解(2)--对协程概念的支持">
+<meta name="twitter:description" content="python中的生成器主要经历三个发展阶段：  作为实现迭代器协议的一种方式而出现(yield语句) 增添方法，使生成器能够支持协程(增加close,send,throw方法，调整yield语句为yield表达式) 为了重构方便增加了yield from 语法  在这篇博文中，主要介绍用于第二点">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/03/25/python的generator理解-2-对协程概念的支持/"/>
+
+
+
+
+
+  <title> python的generator理解(2)--对协程概念的支持 | 没脚的雀 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6959325046ea5045c25cae0a86b93189";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">没脚的雀</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">我有十个手指头<br>愿她们在键盘上舞蹈<br>奏出最美的乐章</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/03/25/python的generator理解-2-对协程概念的支持/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="WinChua">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/hmm_hat.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="没脚的雀">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="没脚的雀" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                python的generator理解(2)--对协程概念的支持
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-03-25T22:24:29+08:00">
+                2017-03-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<p>python中的生成器主要经历三个发展阶段：</p>
+<ol>
+<li>作为实现迭代器协议的一种方式而出现(yield语句)</li>
+<li>增添方法，使生成器能够支持协程(增加close,send,throw方法，调整yield语句为yield表达式)</li>
+<li>为了重构方便增加了yield from 语法</li>
+</ol>
+<p>在这篇博文中，主要介绍用于第二点</p>
+<hr>
+<a id="more"></a>
+<h2 id="关于协程"><a href="#关于协程" class="headerlink" title="关于协程"></a>关于协程</h2><p>协程，coroutine， 这个名称相对于当代操作系统多任务的抢占式协作(随着时间片的耗尽，进程/线程将会被操作系统剥夺cpu的使用权，然后分配给其他进程/线程)，协程是主动交出cpu的使用权。</p>
+<p>在python的生成器概念提出来时，生成器的概念已经很接近协程的概念了，试想一下，一个yield语句将会暂停(挂起)当前函数的执行(主动让出cpu的使用权)，将一个中间值返回给函数的调用者；而为了恢复(resume)函数的执行，调用者可以使用next(gen)使生成器在挂起的点继续执行。但是还是有以下几点区别：</p>
+<ul>
+<li>在恢复函数执行的时候，无法向生成器传递参数或者向生成器抛出一个异常</li>
+<li>无法在try/finally的try分句中使用yield， 导致生成器在弃用之后无法进行资源释放</li>
+</ul>
+<h2 id="丰富生成器的行为"><a href="#丰富生成器的行为" class="headerlink" title="丰富生成器的行为"></a>丰富生成器的行为</h2><p>为了使生成器更加接近于协程的概念，python在pep342中做出了以下的改变：</p>
+<ul>
+<li><p>将yield从原来的语句(statement)调整为表达式(expression)</p>
+</li>
+<li><p>为生成器对象增加了以下几个方法：</p>
+<ul>
+<li><p>send方法： send方法的参数作为yield表达式的值；</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">generator_function</span><span class="params">()</span>:</span></span><br><span class="line">    value = <span class="keyword">yield</span> <span class="string">"yield from func"</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"receive outside the gen_obj:"</span>, value</span><br><span class="line"></span><br><span class="line">gen_obj = generator_function()</span><br><span class="line"><span class="keyword">print</span> gen_obj.send(<span class="keyword">None</span>)</span><br><span class="line"><span class="comment">## yield from func</span></span><br><span class="line">gen_obj.send(<span class="number">42</span>)  <span class="comment">## 42 将会作为 yield "yield from func" 表达式的值赋值给value</span></span><br><span class="line"><span class="comment">## receive outside the gen_obj: 42</span></span><br></pre></td></tr></table></figure>
+<p>​</p>
+</li>
+<li><p>throw方法：throw方法的参数是一个异常，该异常将会在生成器对象的yield表达式的位置被抛出；</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">generator_function</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        value = <span class="keyword">yield</span> <span class="string">"yield from func"</span></span><br><span class="line">    <span class="keyword">except</span> ValueError:</span><br><span class="line">        <span class="keyword">print</span> <span class="string">"valueerror"</span></span><br><span class="line">        </span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen_obj = generator_function()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen_obj.send(<span class="keyword">None</span>)</span><br><span class="line"><span class="string">'yield from func'</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen_obj.throw(ValueError)</span><br><span class="line">valueerror                                  <span class="comment">## 在gen_obj 中被捕捉，执行except的代码块</span></span><br><span class="line"></span><br><span class="line">Traceback (most recent call last):          <span class="comment">## 然后向调用者抛出一个StopIteration异常，</span></span><br><span class="line">  File <span class="string">"&lt;pyshell#68&gt;"</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;  <span class="comment">## 表示生成器已经结束</span></span><br><span class="line">    gen_obj.throw(ValueError)</span><br><span class="line">StopIteration</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen_obj1 = generator_function()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen_obj1.send(<span class="keyword">None</span>)</span><br><span class="line"><span class="string">'yield from func'</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen_obj1.throw(AttributeError)    <span class="comment">## 向gen_obj1抛出异常，由于AttributeError异常没有在</span></span><br><span class="line">                                      <span class="comment">## 生成器内部被捕捉， 该AttributeError异常将会被向调                                       ## 用者抛出</span></span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">"&lt;pyshell#74&gt;"</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">    gen_obj1.throw(AttributeError)</span><br><span class="line">  File <span class="string">"&lt;pyshell#65&gt;"</span>, line <span class="number">3</span>, <span class="keyword">in</span> generator_function</span><br><span class="line">    value = <span class="keyword">yield</span> <span class="string">"yield from func"</span></span><br><span class="line">AttributeError</span><br></pre></td></tr></table></figure>
+<p>​</p>
+</li>
+<li><p>close方法： close方法主要为生成器提供外部资源释放的能力，该方法会在生成器被gc回收的时候调用。close方法相当于gen_obj.throw(GeneratorExit)， 将向生成器对象抛出一个GeneratorExit异常表示生成器推出了，主要用于确保在try/finally结构的try分句包含yield表达式时，finally总能够被执行(显示调用close方法，或者在gc回收时，隐式调用close方法)</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">gen_func</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">yield</span> <span class="string">"Hello"</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        value =  <span class="keyword">yield</span> <span class="number">42</span></span><br><span class="line">        <span class="keyword">print</span>  <span class="string">'42'</span></span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        <span class="keyword">print</span> <span class="string">"finally"</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen_obj1 = gen_func()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen_obj1.send(<span class="keyword">None</span>)</span><br><span class="line"><span class="string">'Hello'</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen_obj1.throw(ValueErro)</span><br><span class="line"></span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">"&lt;pyshell#82&gt;"</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">    gen_obj1.throw(ValueErro)</span><br><span class="line">NameError: name <span class="string">'ValueErro'</span> <span class="keyword">is</span> <span class="keyword">not</span> defined</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen_obj2 = gen_func()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen_obj2.send(<span class="keyword">None</span>)</span><br><span class="line"><span class="string">'Hello'</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen_obj2.close()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen_obj1 = gen_func()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen_obj1.send(<span class="keyword">None</span>)</span><br><span class="line"><span class="string">'Hello'</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen_obj1.close()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen_obj2 = gen_func()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen_obj2.send(<span class="keyword">None</span>)</span><br><span class="line"><span class="string">'Hello'</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen_obj2.send(<span class="keyword">None</span>)</span><br><span class="line"><span class="number">42</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen_obj2.close()</span><br><span class="line"><span class="keyword">finally</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen_obj3 = gen_func()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen_obj3.send(<span class="keyword">None</span>)</span><br><span class="line"><span class="string">'Hello'</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>gen_obj3.send(<span class="keyword">None</span>)</span><br><span class="line"><span class="number">42</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">del</span> gen_obj3</span><br><span class="line"><span class="keyword">finally</span></span><br></pre></td></tr></table></figure>
+<p>​</p>
+</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>大佬给口饭吃咧</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat-reward.jpg" alt="WinChua WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/images/alipay-reward.jpg" alt="WinChua Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/03/25/python的generator理解(1)--实现迭代器协议/" rel="next" title="python的generator理解(1)--实现迭代器协议">
+                <i class="fa fa-chevron-left"></i> python的generator理解(1)--实现迭代器协议
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/07/23/100以内的几个数字/" rel="prev" title="100以内的几个数字">
+                100以内的几个数字 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+            <div id="uyan_frame"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/hmm_hat.jpg"
+               alt="WinChua" />
+          <p class="site-author-name" itemprop="name">WinChua</p>
+          <p class="site-description motion-element" itemprop="description">我头像上的圣诞帽<br>是我最喜欢的女孩子亲手给我画的</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/WinChua" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#关于协程"><span class="nav-number">1.</span> <span class="nav-text">关于协程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#丰富生成器的行为"><span class="nav-number">2.</span> <span class="nav-text">丰富生成器的行为</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WinChua</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+    
+      
+    
+
+   
+        <!-- UY BEGIN -->
+        <div id="uyan_frame"></div>
+        <script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=2140384"></script>
+        <!-- UY END -->
+    
+  
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>
