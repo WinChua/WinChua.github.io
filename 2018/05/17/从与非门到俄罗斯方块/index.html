@@ -1,0 +1,908 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="从与非门到俄罗斯方块(From Nand to Tetris)哈佛版本 CS 101:) (http://www.nand2tetris.org/) (CS 101: Stanford 的计算机公开课 https://lagunita.stanford.edu/courses/Engineering/CS101/Summer2014/about#video-modal) 课程配套的教材中文译本是:">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从与非门到俄罗斯方块">
+<meta property="og:url" content="http://yoursite.com/2018/05/17/从与非门到俄罗斯方块/index.html">
+<meta property="og:site_name" content="没脚的雀">
+<meta property="og:description" content="从与非门到俄罗斯方块(From Nand to Tetris)哈佛版本 CS 101:) (http://www.nand2tetris.org/) (CS 101: Stanford 的计算机公开课 https://lagunita.stanford.edu/courses/Engineering/CS101/Summer2014/about#video-modal) 课程配套的教材中文译本是:">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/images/n2t/pro01/Not.png">
+<meta property="og:image" content="http://yoursite.com/images/n2t/pro01/And.png">
+<meta property="og:image" content="http://yoursite.com/images/n2t/pro01/Or.png">
+<meta property="og:image" content="http://yoursite.com/images/n2t/pro01/Xor.png">
+<meta property="og:image" content="http://yoursite.com/images/n2t/pro01/Mux.png">
+<meta property="og:updated_time" content="2018-05-17T08:47:27.101Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从与非门到俄罗斯方块">
+<meta name="twitter:description" content="从与非门到俄罗斯方块(From Nand to Tetris)哈佛版本 CS 101:) (http://www.nand2tetris.org/) (CS 101: Stanford 的计算机公开课 https://lagunita.stanford.edu/courses/Engineering/CS101/Summer2014/about#video-modal) 课程配套的教材中文译本是:">
+<meta name="twitter:image" content="http://yoursite.com/images/n2t/pro01/Not.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/05/17/从与非门到俄罗斯方块/"/>
+
+
+
+
+
+  <title> 从与非门到俄罗斯方块 | 没脚的雀 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6959325046ea5045c25cae0a86b93189";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">没脚的雀</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">我有十个手指头<br>愿她们在键盘上舞蹈<br>奏出最美的乐章</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/17/从与非门到俄罗斯方块/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="WinChua">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/hmm_hat.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="没脚的雀">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="没脚的雀" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                从与非门到俄罗斯方块
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-05-17T15:53:01+08:00">
+                2018-05-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="从与非门到俄罗斯方块-From-Nand-to-Tetris"><a href="#从与非门到俄罗斯方块-From-Nand-to-Tetris" class="headerlink" title="从与非门到俄罗斯方块(From Nand to Tetris)"></a>从与非门到俄罗斯方块(From Nand to Tetris)</h2><p>哈佛版本 CS 101:) (<a href="http://www.nand2tetris.org/" target="_blank" rel="noopener">http://www.nand2tetris.org/</a>)</p>
+<p>(CS 101: Stanford 的计算机公开课 <a href="https://lagunita.stanford.edu/courses/Engineering/CS101/Summer2014/about#video-modal" target="_blank" rel="noopener">https://lagunita.stanford.edu/courses/Engineering/CS101/Summer2014/about#video-modal</a>)</p>
+<p>课程配套的教材中文译本是: 《计算机系统要素》(<a href="https://book.douban.com/subject/1998341/" target="_blank" rel="noopener">https://book.douban.com/subject/1998341/</a>)</p>
+<p>在作者的视频介绍中提及，CS涵盖的主要内容是:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">OS, Hardware, Programming Language, Architecture, Data Structures, Compilers, Algorithm, Software Engineering, etc.</span><br></pre></td></tr></table></figure>
+<p>现有很多课程主要专注于上述的某一方面的内容，缺少了对整个计算机系统介绍的big picture，这正式这门课程想要解决的问题。</p>
+<p>课程从 Nand 逻辑门开始讲起，涉及机器语言、汇编器、OS等内容，全面介绍了计算机系统，但是因为涉及面比较广，介绍的不是很深入，比较适合入门，另外课程配套了一些project， 可以在网站上面找到相应的软件以及text。</p>
+<p>这里主要介绍第一个 project</p>
+<a id="more"></a>
+<h2 id="布尔逻辑"><a href="#布尔逻辑" class="headerlink" title="布尔逻辑"></a>布尔逻辑</h2><p>两输入的真值表，一共由16个，这些逻辑元器件可以使用 与非门作为基础元件进行构建。这里涉及到一个问题： 为什么与非门可以作为basic building block 用来构建其余的逻辑元器件? 参考 [1, 2, 3] 的内容， 这里不展开说明， 其实我也不是很懂。</p>
+<h3 id="Pro-1-中的作业"><a href="#Pro-1-中的作业" class="headerlink" title="Pro  1 中的作业"></a>Pro  1 中的作业</h3><p>使用 Nand 构建以下的逻辑门。</p>
+<h4 id="非门"><a href="#非门" class="headerlink" title="非门"></a>非门</h4><p>非门的真值表:</p>
+<table>
+<thead>
+<tr>
+<th>in</th>
+<th>out</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>逻辑图: </p>
+<p><img src="\images\n2t\pro01\Not.png" alt="Not"></p>
+<p>代码:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">CHIP Not &#123;</span><br><span class="line">    IN in;</span><br><span class="line">    OUT out;</span><br><span class="line"></span><br><span class="line">    PARTS:</span><br><span class="line">    Nand(a=in, b=in, out=out);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="与门"><a href="#与门" class="headerlink" title="与门"></a>与门</h4><p>真值表:</p>
+<table>
+<thead>
+<tr>
+<th>a</th>
+<th>b</th>
+<th>out</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>逻辑图: </p>
+<p><img src="\images\n2t\pro01\And.png" alt="And"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">CHIP And &#123;</span><br><span class="line">    IN a, b;</span><br><span class="line">    OUT out;</span><br><span class="line"></span><br><span class="line">    PARTS:</span><br><span class="line">    // Put your code here:</span><br><span class="line">    Nand(a=a, b=b, out=y);</span><br><span class="line">    Not(in=y, out=out);</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="或门"><a href="#或门" class="headerlink" title="或门"></a>或门</h4><p>真值表:</p>
+<table>
+<thead>
+<tr>
+<th>a</th>
+<th>b</th>
+<th>out</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>逻辑图:</p>
+<p><img src="\images\n2t\pro01\Or.png" alt="Or"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">CHIP Or &#123;</span><br><span class="line">    IN a, b;</span><br><span class="line">    OUT out;</span><br><span class="line"></span><br><span class="line">    PARTS:</span><br><span class="line">    // Put your code here:</span><br><span class="line">    Not(in=a, out=na);</span><br><span class="line">    Not(in=b, out=nb);</span><br><span class="line">    Nand(a=na, b=nb, out=x);</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="异或门"><a href="#异或门" class="headerlink" title="异或门"></a>异或门</h4><p>真值表:</p>
+<table>
+<thead>
+<tr>
+<th>a</th>
+<th>b</th>
+<th>out</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>逻辑图:</p>
+<p><img src="\images\n2t\pro01\Xor.png" alt="Xor"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">CHIP Xor &#123;</span><br><span class="line">    IN a, b;</span><br><span class="line">    OUT out;</span><br><span class="line"></span><br><span class="line">    PARTS:</span><br><span class="line">    // Version 1</span><br><span class="line">    // Not(in=a, out=na);</span><br><span class="line">    // Not(in=b, out=nb);</span><br><span class="line">    // And(a=na, b=b, out=x);</span><br><span class="line">    // And(a=nb, b=a, out=y);</span><br><span class="line">    // Or(a=x, b=y, out=out);</span><br><span class="line"></span><br><span class="line">    // Version 2 5 Nand</span><br><span class="line">    // Not(in=a, out=na);</span><br><span class="line">    // Not(in=b, out=nb);</span><br><span class="line">    // Nand(a=na, b=b, out=x);</span><br><span class="line">    // Nand(a=nb, b=a, out=y);</span><br><span class="line">    // Nand(a=x, b=y, out=out);</span><br><span class="line"></span><br><span class="line">    // Version 3 4 Nand</span><br><span class="line">    Nand(a=a, b=b, out=ab);</span><br><span class="line">    Nand(a=a, b=ab, out=x);</span><br><span class="line">    Nand(a=b, b=ab, out=y);</span><br><span class="line">    Nand(a=x, b=y, out=out);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="数据选择器"><a href="#数据选择器" class="headerlink" title="数据选择器"></a>数据选择器</h4><p>真值表:</p>
+<table>
+<thead>
+<tr>
+<th>a</th>
+<th>b</th>
+<th>sel</th>
+<th>out</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>逻辑图:</p>
+<p><img src="\images\n2t\pro01\Mux.png" alt="Mux"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">CHIP Mux &#123;</span><br><span class="line">    IN a, b, sel;</span><br><span class="line">    OUT out;</span><br><span class="line"></span><br><span class="line">    PARTS:</span><br><span class="line">    // Put your code here:</span><br><span class="line">    Not(in=sel, out=ns);</span><br><span class="line">    Nand(a=a, b=ns, out=x);</span><br><span class="line">    Nand(a=b, b=sel, out=y);</span><br><span class="line">    Nand(a=x, b=y, out=out);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="参考引用"><a href="#参考引用" class="headerlink" title="参考引用"></a>参考引用</h2><p>[1] <a href="https://en.wikipedia.org/wiki/NAND_logic" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/NAND_logic</a></p>
+<p>[2] <a href="https://en.wikipedia.org/wiki/Functional_completeness" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Functional_completeness</a> </p>
+<p>[3] <a href="https://www.quora.com/Why-do-we-use-NAND-and-NOR-Gate-for-implementing-any-logic-design" target="_blank" rel="noopener">https://www.quora.com/Why-do-we-use-NAND-and-NOR-Gate-for-implementing-any-logic-design</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>大佬给口饭吃咧</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechat-reward.jpg" alt="WinChua WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/images/alipay-reward.jpg" alt="WinChua Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/17/TransRev-Modeling-Reviews-as-Translations-from-Users-to-Items阅读/" rel="next" title="TransRev-Modeling Reviews as Translations from Users to Items阅读">
+                <i class="fa fa-chevron-left"></i> TransRev-Modeling Reviews as Translations from Users to Items阅读
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+            <div id="uyan_frame"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/hmm_hat.jpg"
+               alt="WinChua" />
+          <p class="site-author-name" itemprop="name">WinChua</p>
+          <p class="site-description motion-element" itemprop="description">error-oriented debugging<br>google-oriented coding<br>girlfriend-oriented keeping</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/WinChua" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#从与非门到俄罗斯方块-From-Nand-to-Tetris"><span class="nav-number">1.</span> <span class="nav-text">从与非门到俄罗斯方块(From Nand to Tetris)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#布尔逻辑"><span class="nav-number">2.</span> <span class="nav-text">布尔逻辑</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Pro-1-中的作业"><span class="nav-number">2.1.</span> <span class="nav-text">Pro  1 中的作业</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#非门"><span class="nav-number">2.1.1.</span> <span class="nav-text">非门</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#与门"><span class="nav-number">2.1.2.</span> <span class="nav-text">与门</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#或门"><span class="nav-number">2.1.3.</span> <span class="nav-text">或门</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#异或门"><span class="nav-number">2.1.4.</span> <span class="nav-text">异或门</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#数据选择器"><span class="nav-number">2.1.5.</span> <span class="nav-text">数据选择器</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考引用"><span class="nav-number">3.</span> <span class="nav-text">参考引用</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WinChua</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+    
+      
+    
+
+   
+        <!-- UY BEGIN -->
+        <div id="uyan_frame"></div>
+        <script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=2140384"></script>
+        <!-- UY END -->
+    
+  
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>
