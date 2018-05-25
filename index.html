@@ -272,6 +272,187 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/25/Python中对象属性的访问/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="WinChua">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/hmm_hat.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="没脚的雀">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="没脚的雀" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2018/05/25/Python中对象属性的访问/" itemprop="url">
+                  Python中对象属性的访问
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-05-25T20:30:05+08:00">
+                2018-05-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Python-中对象属性的访问过程"><a href="#Python-中对象属性的访问过程" class="headerlink" title="Python 中对象属性的访问过程"></a>Python 中对象属性的访问过程</h2><h3 id="getattr-特殊方法"><a href="#getattr-特殊方法" class="headerlink" title="__getattr__ 特殊方法"></a>__getattr__ 特殊方法</h3><p>python中的’.’属性访问运算符, 通过 __getattribute__ , 如果 __getattribute__ 方法抛出 AttributeError 异常, 将会继续调用 _<em>__getattr\</em>_ (如果有定义的话, 否则抛出AttributeError异常), __getattr__ 的一个用法做属性访问的委托, eg:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Heart</span>:</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, color)</span>:</span></span><br><span class="line">    self.heartbeat = <span class="number">42</span></span><br><span class="line">    self.color = color</span><br><span class="line">    </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span>:</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, heart)</span>:</span></span><br><span class="line">    self.heart = heart</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__getattr__</span><span class="params">(self, attrname)</span>:</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">      <span class="keyword">return</span> getattr(self.heart, attrname)</span><br><span class="line">    <span class="keyword">except</span> AttributeError <span class="keyword">as</span>  e:</span><br><span class="line">      print(e)</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">None</span></span><br><span class="line">      </span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>myheart = Heart(color=<span class="string">"black"</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>me = Person(heart=myheart)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>me.color</span><br><span class="line"><span class="string">'black'</span></span><br></pre></td></tr></table></figure>
+<p>解释一下 me.color 这句</p>
+<ul>
+<li>Person.__getattribute__(me, “color”)   结果是引发一个 AttributeError, 该异常导致 __getattr__ 的调用</li>
+<li>Person.__getattr__(me, “color”), 按照定义的行为,将会把 me.heart.color 作为结果返回</li>
+</ul>
+<h3 id="getattribute-特殊方法"><a href="#getattribute-特殊方法" class="headerlink" title="__getattribute__ 特殊方法"></a>__getattribute__ 特殊方法</h3><p>__getattribute__ 方法是Python新式类才有的, 主要用于自定义属性访问控制.  eg</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Foo</span>:</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__getattribute__</span><span class="params">(self, attrname)</span>:</span></span><br><span class="line">    print(<span class="string">"access for attribute &#123;attrname&#125;."</span>.format(attrname=attrname))</span><br><span class="line">    <span class="keyword">return</span> super().__getattribute__(attrname)</span><br><span class="line">  </span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>foo = Foo()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>foo.finalanswer = <span class="number">42</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>foo.finalanswer</span><br><span class="line">access <span class="keyword">for</span> attribute filnalanswer.</span><br><span class="line"><span class="number">42</span></span><br></pre></td></tr></table></figure>
+<p>上面的例子展示一个demo, 主要用来向标准输出, 打印出访问的属性的名称.</p>
+<p>foo.finalanswer 调用了 foo.__getattribute__(“finalanswer”), 该方法先把  finalanswer 打印出来,然后调用父类默认的__getattribute__ 函数, 得到这个属性的值. 那么 __getattribute__ 函数的具体行为是怎么样的呢? 也就是python对一个对象的属性查找是怎么样的呢?</p>
+<h3 id="对普通属性的查找"><a href="#对普通属性的查找" class="headerlink" title="对普通属性的查找"></a>对普通属性的查找</h3><p>先上一个例子先:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span>:</span></span><br><span class="line">  <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a = A()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>b = A()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>b</span><br><span class="line">&lt;__main__.A object at <span class="number">0x7f885ad38e48</span>&gt;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a.mirror = b</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a.__dict__</span><br><span class="line">&#123;<span class="string">'mirror'</span>: &lt;__main__.A object at <span class="number">0x7f885ad38e48</span>&gt;&#125;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a.mirror</span><br><span class="line">&lt;__main__.A object at <span class="number">0x7f885ad38e48</span>&gt;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>b <span class="keyword">is</span> a.__dict__[<span class="string">"mirror"</span>]</span><br><span class="line"><span class="keyword">True</span></span><br></pre></td></tr></table></figure>
+<p>上面的例子中通过  a.mirror = b 为对象 a 赋值了一个属性 b, 最终  b 通过 “mirror”: b 这种key-value 的形式存储在 a.__dict__ 中, 而对于mirror的查找将会转化成为  a.__dict__[“mirror”], 也就是说, 在python中对普通属性的访问, 有如下关系:</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">obj.attributename ==&gt; obj.__dict__["attributename"]</span><br></pre></td></tr></table></figure>
+<p>但是呢, 不知道你注意到没有, obj.__dict__ 也是一种属性查找, 那么对它的访问是否也遵循上面的规则呢? 如果是的话, 应该有如下的转化:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">obj.attributename ==&gt; obj.__dict__["attributename"] ==&gt; obj.__dict__["__dict__"]["attributename"] ==&gt; ... </span><br><span class="line">obj.__dict__[<span class="string">"__dict__"</span>]...[<span class="string">"__dict__"</span>][<span class="string">"__dict__"</span>][<span class="string">"attributename"</span>]</span><br></pre></td></tr></table></figure>
+<p>一个无限的递归…所以, 显然对 obj._<em>dict\</em>_的访问并不按照上面描述的规则进行转换, 那么这种访问的转化规则是怎么样的呢?</p>
+<h3 id="对数据描述符属性的查找"><a href="#对数据描述符属性的查找" class="headerlink" title="对数据描述符属性的查找"></a>对数据描述符属性的查找</h3><p>上面说到, 如果按照普通属性的查找方式来查找 __dict__ 的话,将会产生无限递归, 为了解决这个问题,python定义了数据描述符的概念(datadescriptor), 即如果一个类同时定义了__get__, __set__, __delete__ 方法, 那么它就是数据描述符.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Descriptor</span>:</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__get__</span><span class="params">(self, ins, cls)</span>:</span></span><br><span class="line">    print(<span class="string">"&#123;ins&#125; of &#123;cls&#125; ask for value."</span>.format(ins=ins, cls=cls))</span><br><span class="line">    <span class="keyword">return</span> <span class="number">42</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__set__</span><span class="params">(self, ins, value)</span>:</span></span><br><span class="line">    print(<span class="string">"&#123;ins&#125; want to set attr to &#123;value&#125;."</span>.format(ins=ins, value=value))</span><br><span class="line">    </span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__delete__</span><span class="params">(self, ins)</span>:</span></span><br><span class="line">    <span class="keyword">raise</span> AttributeError(<span class="string">"Couldn't delete the attribute."</span>)</span><br><span class="line">    </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span>:</span></span><br><span class="line">  name = Descriptor()</span><br><span class="line">  </span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a = A()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a.name</span><br><span class="line">&lt;__main__.A object at <span class="number">0x7f6778572a90</span>&gt; of &lt;<span class="class"><span class="keyword">class</span> '<span class="title">__main__</span>.<span class="title">A</span>'&gt; <span class="title">ask</span> <span class="title">for</span> <span class="title">value</span>.</span></span><br><span class="line"><span class="class">42</span></span><br><span class="line">&gt;&gt;&gt; a.name = 23</span><br><span class="line">&lt;__main__.A object at <span class="number">0x7f6778572a90</span>&gt; want to set attr to <span class="number">23.</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">del</span> a.name</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">"&lt;stdin&gt;"</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">  File <span class="string">"&lt;stdin&gt;"</span>, line <span class="number">9</span>, <span class="keyword">in</span> __delete__</span><br><span class="line">AttributeError: Couldn<span class="string">'t delete the attribute.</span></span><br><span class="line"><span class="string">&gt;&gt;&gt; import inspect</span></span><br><span class="line"><span class="string">&gt;&gt;&gt; inspect.isdatadescriptor(A.__dict__["name"])</span></span><br><span class="line"><span class="string">True</span></span><br></pre></td></tr></table></figure>
+<p>上面展示了一个datadescriptor的访问控制, 其中name = Descriptor() 定义了一个数据描述符, 总结起来对一个数据描述符属性的访问有如下的规则:</p>
+<ol>
+<li><p>对于实例对象来说, 对数据描述符的访问将会转化对数据描述符的__get__ 的调用:<br>a.name 将会转化成为  A.name.__get__(a, A) 的调用</p>
+</li>
+<li><p>对于类对象来说, 对数据描述符的访问将会转化成为对其 __get__的调用</p>
+<p>A.name 将会转化成为 A.name.__get__(None, A)</p>
+</li>
+<li><p>对于实例对象来说, 对 数据描述符属性进行赋值将会转化成为对其 __set__ 的调用:</p>
+<p>a.name = 23 ===&gt;  A.name.__set__(a, 23) </p>
+</li>
+<li><p>如果对数据描述符进行删除, 将会 调用其 __delete__ :</p>
+<p>del a.name   ===&gt; A.name.__delete__(a)</p>
+</li>
+</ol>
+<p>回到我们刚才的话题, 对__dict__ 的访问是按照什么方式进行的呢? 首先看看 __dict__ 是什么</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span>:</span> <span class="keyword">pass</span></span><br><span class="line">a = A()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a.__dict__</span><br><span class="line">&#123;&#125;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>A.__dict__[<span class="string">"__dict__"</span>]</span><br><span class="line">&lt;attribute <span class="string">'__dict__'</span> of <span class="string">'A'</span> objects&gt;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> inspect</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>inspect.isdatadescriptor(A.__dict__[<span class="string">"__dict__"</span>])</span><br><span class="line"><span class="keyword">True</span></span><br></pre></td></tr></table></figure>
+<p>从上面可以看处,  A.__dict__[“__dict__“] 是一个数据描述符, 那么, a.__dict__ 是不是就是从这个数据描述符中来的呢?</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>a.__dict__ <span class="keyword">is</span> A.__dict__[<span class="string">"__dict__"</span>].__get__(a, A)</span><br><span class="line"><span class="keyword">True</span></span><br></pre></td></tr></table></figure>
+<p>所以,是的.  完整的 foo.finalanswer 的查找过程如下:</p>
+<ol>
+<li>foo.finalanswer 转化成为 foo.__dict__[“finalanswer”]</li>
+<li>foo.__dict__ 转化成为 Foo.__dict__[“__dict__“].__get__(foo, Foo)</li>
+<li>最终转化成为Foo.__dict__[“__dict__“].__get__(foo, Foo)[“finalanswer”]</li>
+</ol>
+<h3 id="非数据描述符属性的查找"><a href="#非数据描述符属性的查找" class="headerlink" title="非数据描述符属性的查找"></a>非数据描述符属性的查找</h3><p>有数据描述符, 当然也有非数据描述符了, 它的定义比数据描述符简单:</p>
+<ol>
+<li>定义了 __get__ 方法的类的实例,都是非数据描述符</li>
+</ol>
+<p>那么, 它跟数据描述符的区别是什么呢? 看看下面的例子</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">NonDataDescriptor</span>:</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__get__</span><span class="params">(self, ins, cls)</span>:</span></span><br><span class="line">    print(<span class="string">"&#123;ins&#125; of &#123;cls&#125; get attribute."</span>.format(ins=ins, cls=cls))</span><br><span class="line">    <span class="keyword">return</span> <span class="number">42</span></span><br><span class="line"> </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span>:</span></span><br><span class="line">  name = NonDataDescriptor()</span><br><span class="line"> </span><br><span class="line">a = A()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a.name</span><br><span class="line">&lt;__main__.A object at <span class="number">0x7f6778572b00</span>&gt; of &lt;<span class="class"><span class="keyword">class</span> '<span class="title">__main__</span>.<span class="title">A</span>'&gt; <span class="title">get</span> <span class="title">attribute</span>.</span></span><br><span class="line"><span class="class">42</span></span><br><span class="line">&gt;&gt;&gt; a.name = "the most handsome boy."</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a.name</span><br><span class="line"><span class="string">"the most handsome boy."</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a.__dict__</span><br><span class="line">&#123;<span class="string">"name"</span>: <span class="string">"the most handsome boy."</span>&#125;</span><br></pre></td></tr></table></figure>
+<p>从上面的例子可以看处来, 对于非数据描述符的属性查找来说, 其查找过程还是跟数据描述符的属性查找过程一样的, 但是对其惊醒赋值,将会以相应的key:value 形式将赋值的结果存储在 a.__dict__ 中, 后续对该属性名称的查找就不会调用非数据描述符的__get__ 方法了.</p>
+<h3 id="类本身也是对象"><a href="#类本身也是对象" class="headerlink" title="类本身也是对象"></a>类本身也是对象</h3><p>类本身也是对象, 在上面的类实例的查找中,有如下转化关系:</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">foo.__dict__ ===&gt; Foo.__dict__["__dict__"].__get__(foo, Foo)</span><br><span class="line">更加通用的一个形式是:</span><br><span class="line">obj.__dict__ ===&gt; type(obj).__dict__["__dict__"].__get__(obj, type(obj))</span><br></pre></td></tr></table></figure>
+<p>其中,  type(obj).__dict__ 也有如下的转换</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">type(obj).__dict__    ===&gt;   type(type(obj)).__dict__["__dict__"].__get__(type(obj), type(type(obj)))</span><br></pre></td></tr></table></figure>
+<p>转化之后又有 .__dict__ 的查找, 似乎又会有无限递归的情况出现, but</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>type(Foo)</span><br><span class="line">&lt;<span class="class"><span class="keyword">class</span> '<span class="title">type</span>'&gt;</span></span><br><span class="line"><span class="class">&gt;&gt;&gt; <span class="title">type</span><span class="params">(type<span class="params">(Foo)</span>)</span></span></span><br><span class="line"><span class="class">&lt;<span class="title">class</span> '<span class="title">type</span>'&gt;   </span></span><br><span class="line"># in python3, type is class, class is type</span><br></pre></td></tr></table></figure>
+<p>也就是说 type(Foo) 和 type(type(Foo)) 的运算结果是一样的, 所以,不会递归了.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span>:</span></span><br><span class="line">  <span class="keyword">pass</span></span><br><span class="line">a = A()</span><br><span class="line"><span class="keyword">assert</span> a.__class__ == A</span><br><span class="line"><span class="keyword">assert</span> id(a.__dict__) == A.__dict__[<span class="string">"__dict__"</span>].__get__(a, A)</span><br><span class="line"><span class="keyword">assert</span> A.__class__ == type</span><br><span class="line"><span class="keyword">assert</span> id(A.__dict__) == type.__dict__[<span class="string">"__dict__"</span>].__get__(A, type)</span><br><span class="line"><span class="keyword">assert</span> type.__class__ == type</span><br><span class="line"><span class="keyword">assert</span> id(type.__dict__) == type.__dict__[<span class="string">"__dict__"</span>].__get__(type, type)</span><br></pre></td></tr></table></figure>
+<h2 id="参考阅读"><a href="#参考阅读" class="headerlink" title="参考阅读"></a>参考阅读</h2><p>[1] <a href="https://docs.python.org/3/howto/descriptor.html" target="_blank" rel="noopener">https://docs.python.org/3/howto/descriptor.html</a></p>
+<p>[2] <a href="https://docs.python.org/3/library/inspect.html#module-inspect" target="_blank" rel="noopener">https://docs.python.org/3/library/inspect.html#module-inspect</a></p>
+<p>[3] <a href="http://www.cs.utexas.edu/~cannata/cs345/Class%20Notes/15%20python_attributes_and_methods.pdf" target="_blank" rel="noopener">http://www.cs.utexas.edu/~cannata/cs345/Class%20Notes/15%20python_attributes_and_methods.pdf</a></p>
+<p>[4] <a href="http://www.cs.utexas.edu/~cannata/cs345/Class%20Notes/15%20Python%20Types%20and%20Objects.pdf" target="_blank" rel="noopener">http://www.cs.utexas.edu/~cannata/cs345/Class%20Notes/15%20Python%20Types%20and%20Objects.pdf</a></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
   <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/17/从与非门到俄罗斯方块/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1393,129 +1574,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/03/25/Matplotlib的3d绘画/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="WinChua">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="/images/hmm_hat.jpg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="没脚的雀">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="没脚的雀" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/03/25/Matplotlib的3d绘画/" itemprop="url">
-                  Matplotlib的3d绘画
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-03-25T19:09:51+08:00">
-                2017-03-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="matplotlib中绘画3d图案的工具——mplot3d"><a href="#matplotlib中绘画3d图案的工具——mplot3d" class="headerlink" title="matplotlib中绘画3d图案的工具——mplot3d"></a>matplotlib中绘画3d图案的工具——mplot3d</h2><p>python的matplotlib画图库主要定位是绘画2d的图案，而绘画3d图案只是它的附加功能，所以其处在matplotlib的mpl_toolkits 子库中。主要为用户提供在3d空间中绘画散点图、线图、曲面图等简单图案的能力。</p>
-          <!--noindex-->
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/03/25/Matplotlib的3d绘画/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1563,7 +1621,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-count">16</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
